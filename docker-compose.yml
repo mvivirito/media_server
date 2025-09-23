@@ -8,8 +8,8 @@ services:
       - PGID=1000  # Your non-root group ID
       - TZ=Etc/UTC  # Your timezone, e.g., America/New_York
     volumes:
-      - /shared/configs/sabnzbd:/config
-      - /shared/Downloads:/downloads  # Map to your NAS downloads folder
+      - /volume4/configs/sabnzbd:/config
+      - /volume2/Downloads:/downloads  # Map to your NAS downloads folder
     ports:
       - 8080:8080  # Web UI
     restart: unless-stopped
@@ -24,9 +24,9 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - /shared/configs/radarr:/config
-      - /shared/Downloads:/downloads  # Shared with SABnzbd for completed files
-      - /shared/Warehouse-1/movies:/movies  # Where movies are stored for Emby
+      - /volume4/configs/radarr:/config
+      - /volume2/Downloads:/downloads  # Shared with SABnzbd for completed files
+      - /volume2/Warehouse-1/movies:/movies  # Where movies are stored for Emby
     ports:
       - 7878:7878  # Web UI
     restart: unless-stopped
@@ -41,9 +41,9 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - /shared/configs/sonarr:/config
-      - /shared/Downloads:/downloads  # Shared with SABnzbd
-      - /shared/Warehouse-2/tv:/tv  # Where TV shows are stored for Emby
+      - /volume4/configs/sonarr:/config
+      - /volume2/Downloads:/downloads  # Shared with SABnzbd
+      - /volume3/Warehouse-2/tv:/tv  # Where movies are stored for Emby
     ports:
       - 8989:8989  # Web UI
     restart: unless-stopped
@@ -58,9 +58,9 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - /shared/configs/emby:/config
-      - /shared/Warehouse-2/tv:/data/tvshows  # Point to Sonarr's TV folder
-      - /shared/Warehouse-1/movies:/data/movies  # Point to Radarr's movie folder
+      - /volume4/configs/emby:/config
+      - /volume3/Warehouse-2/tv:/data/tvshows  # Point to Sonarr's TV folder
+      - /volume2/Warehouse-1/movies:/data/movies  # Point to Radarr's movie folder
     ports:
       - 8096:8096  # HTTP Web UI
       - 8920:8920  # HTTPS Web UI (optional, set up certs in Emby)
