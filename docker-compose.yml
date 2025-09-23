@@ -1,20 +1,75 @@
 version: '3.8'
-
 services:
-  web:
-    image: nginx:latest
-    container_name: nginx_web
-    ports:
-      - "8080:80"
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    environment:
+      - PUID=1000  # Your non-root user ID
+      - PGID=1000  # Your non-root group ID
+      - TZ=Etc/UTC  # Your timezone, e.g., America/New_York
     volumes:
-      - nginx_data:/usr/share/nginx/html:ro
-    networks:
-      - app_network
+      - /configs/sabnzbd:/config
+      - /Downloads:/downloads  # Map to your NAS downloads folder
+    ports:
+      - 8080:8080  # Web UI
     restart: unless-stopped
+    networks:
+      - media-net
 
-volumes:
-  nginx_data:
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /configs/radarr:/config
+      - /Downloads:/downloads  # Shared with SABnzbd for completed files
+      - /Warehouse-1/movies:/movies  # Where movies are stored for Emby
+    ports:
+      - 7878:7878  # Web UI
+    restart: unless-stopped
+    networks:
+      - media-net
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /configs/sonarr:/config
+      - /Downloads:/downloads  # Shared with SABnzbd
+      - /Warehouse-2/tv:/tv  # Where TV shows are stored for Emby
+    ports:
+      - 8989:8989  # Web UI
+    restart: unless-stopped
+    networks:
+      - media-net
+
+  emby:
+    image: lscr.io/linuxserver/emby:latest
+    container_name: emby
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /configs/emby:/config
+      - /Warehouse-2/tv:/data/tvshows  # Point to Sonarr's TV folder
+      - /Warehouse-1/movies:/data/movies  # Point to Radarr's movie folder
+    ports:
+      - 8096:8096  # HTTP Web UI
+      - 8920:8920  # HTTPS Web UI (optional, set up certs in Emby)
+    devices:  # For hardware acceleration (adjust based on your NAS hardware)
+      - /dev/dri:/dev/dri  # Intel Quick Sync
+    restart: unless-stopped
+    networks:
+      - media-net
 
 networks:
-  app_network:
+  media-net:
     driver: bridge
