@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  web:
+    image: nginx:latest
+    container_name: nginx_web
+    ports:
+      - "8080:80"
+    volumes:
+      - nginx_data:/usr/share/nginx/html:ro
+    networks:
+      - app_network
+    restart: unless-stopped
+
+volumes:
+  nginx_data:
+
+networks:
+  app_network:
+    driver: bridge
