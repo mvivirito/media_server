@@ -4,14 +4,22 @@ services:
     image: lscr.io/linuxserver/sabnzbd:latest
     container_name: sabnzbd
     environment:
-      - PUID=1000  # Your non-root user ID
-      - PGID=1000  # Your non-root group ID
-      - TZ=Etc/UTC  # Your timezone, e.g., America/New_York
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
     volumes:
       - /volume4/configs/sabnzbd:/config
-      - /volume2/Downloads:/downloads  # Map to your NAS downloads folder
+      - /volume2/Downloads:/downloads
     ports:
-      - 8080:8080  # Web UI
+      - 8080:8080
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'  # Up to 1.5 CPU cores for downloads
+          memory: 2048M  # 2GB RAM limit
+        reservations:
+          cpus: '0.75'  # Reserve 0.75 CPU core
+          memory: 1024M  # Reserve 1GB RAM
     restart: unless-stopped
     networks:
       - media-net
@@ -25,10 +33,18 @@ services:
       - TZ=Etc/UTC
     volumes:
       - /volume4/configs/radarr:/config
-      - /volume2/Downloads:/downloads  # Shared with SABnzbd for completed files
-      - /volume2/Warehouse-1/movies:/movies  # Where movies are stored for Emby
+      - /volume2/Downloads:/downloads
+      - /volume2/Warehouse-1/movies:/movies
     ports:
-      - 7878:7878  # Web UI
+      - 7878:7878
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'  # Lower priority, 0.5 CPU core
+          memory: 512M  # 512MB RAM limit
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     restart: unless-stopped
     networks:
       - media-net
@@ -42,10 +58,18 @@ services:
       - TZ=Etc/UTC
     volumes:
       - /volume4/configs/sonarr:/config
-      - /volume2/Downloads:/downloads  # Shared with SABnzbd
-      - /volume3/Warehouse-2/tv:/tv  # Where movies are stored for Emby
+      - /volume2/Downloads:/downloads
+      - /volume3/Warehouse-2/tv:/tv
     ports:
-      - 8989:8989  # Web UI
+      - 8989:8989
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'  # Lower priority, 0.5 CPU core
+          memory: 512M  # 512MB RAM limit
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     restart: unless-stopped
     networks:
       - media-net
@@ -59,13 +83,21 @@ services:
       - TZ=Etc/UTC
     volumes:
       - /volume4/configs/emby:/config
-      - /volume3/Warehouse-2/tv:/data/tvshows  # Point to Sonarr's TV folder
-      - /volume2/Warehouse-1/movies:/data/movies  # Point to Radarr's movie folder
+      - /volume3/Warehouse-2/tv:/data/tvshows
+      - /volume2/Warehouse-1/movies:/data/movies
     ports:
-      - 8096:8096  # HTTP Web UI
-      - 8920:8920  # HTTPS Web UI (optional, set up certs in Emby)
-    devices:  # For hardware acceleration (adjust based on your NAS hardware)
-      - /dev/dri:/dev/dri  # Intel Quick Sync
+      - 8096:8096
+      - 8920:8920
+    devices:
+      - /dev/dri:/dev/dri
+    deploy:
+      resources:
+        limits:
+          cpus: '2.5'  # High priority, 2.5 CPU cores for transcoding
+          memory: 8192M  # 8GB RAM limit for streaming/transcoding
+        reservations:
+          cpus: '1.5'  # Reserve 1.5 CPU cores
+          memory: 4096M  # Reserve 4GB RAM
     restart: unless-stopped
     networks:
       - media-net
