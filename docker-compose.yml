@@ -102,6 +102,26 @@ services:
     networks:
       - media-net
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    environment:
+      - TUNNEL_TOKEN=${TOKEN}
+    command: tunnel --no-autoupdate run
+    volumes:
+      - /volume4/configs/cloudflared:/home/nonroot/.cloudflared
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    restart: unless-stopped
+    networks:
+      - media-net
+
 networks:
   media-net:
     driver: bridge
