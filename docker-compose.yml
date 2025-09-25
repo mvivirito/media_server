@@ -15,11 +15,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.5'  # Up to 1.5 CPU cores for downloads
-          memory: 2048M  # 2GB RAM limit
+          cpus: '2.5'
+          memory: 4096M
         reservations:
-          cpus: '0.75'  # Reserve 0.75 CPU core
-          memory: 1024M  # Reserve 1GB RAM
+          cpus: '1.5' 
+          memory: 4096M 
     restart: unless-stopped
     networks:
       - media-net
