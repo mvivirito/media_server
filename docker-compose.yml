@@ -50,7 +50,7 @@ services:
       - media-net
 
   readarr:
-    image: lscr.io/linuxserver/readarr:nightly 
+    image: ghcr.io/faustvii/readarr:sha256-18ff64a9376b718ff29183f85389ef3338750ae9fc386c720bdaff9e386f6c11
     container_name: readarr
     environment:
       - PUID=1000
