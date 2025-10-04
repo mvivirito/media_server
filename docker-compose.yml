@@ -50,7 +50,7 @@ services:
       - media-net
 
   readarr:
-    image: lscr.io/linuxserver/readarr:amd64-develop
+    image: lscr.io/linuxserver/readarr:develop 
     container_name: readarr
     environment:
       - PUID=1000
@@ -59,7 +59,7 @@ services:
     volumes:
       - /volume4/configs/readarr:/config
       - /volume2/Downloads:/downloads
-      - /volume3/Warehouse-2/library:/library
+      - /volume3/Warehouse-2/library:/books
     ports:
       - 8787:8787
     deploy:
