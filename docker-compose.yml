@@ -49,31 +49,6 @@ services:
     networks:
       - media-net
 
-  readarr:
-    image: ghcr.io/faustvii/readarr:latest
-    container_name: readarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-    volumes:
-      - /volume4/configs/readarr:/config
-      - /volume2/Downloads:/downloads
-      - /volume3/Warehouse-2/library:/books
-    ports:
-      - 8787:8787
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5' 
-          memory: 512M 
-        reservations:
-          cpus: '0.25'
-          memory: 256M
-    restart: unless-stopped
-    networks:
-      - media-net
-
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
