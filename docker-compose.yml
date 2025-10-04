@@ -50,7 +50,7 @@ services:
       - media-net
 
   readarr:
-    image: lscr.io/linuxserver/readarr:develop 
+    image: lscr.io/linuxserver/readarr:nightly 
     container_name: readarr
     environment:
       - PUID=1000
