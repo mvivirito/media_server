@@ -50,7 +50,7 @@ services:
       - media-net
 
   readarr:
-    image: ghcr.io/faustvii/readarr:sha256-18ff64a9376b718ff29183f85389ef3338750ae9fc386c720bdaff9e386f6c11
+    image: ghcr.io/faustvii/readarr:latest
     container_name: readarr
     environment:
       - PUID=1000
