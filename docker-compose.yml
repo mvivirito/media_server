@@ -74,6 +74,22 @@ services:
     networks:
       - media-net
 
+  nzbhydra2:
+    image: lscr.io/linuxserver/nzbhydra2:latest
+    container_name: nzbhydra2
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - /volume4/configs/nzbhydra2:/config
+      - /volume2/Downloads:/downloads
+    ports:
+      - 5076:5076
+    restart: unless-stopped
+    networks:
+      - media-net
+
   emby:
     image: lscr.io/linuxserver/emby:latest
     container_name: emby
