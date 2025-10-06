@@ -10,6 +10,7 @@ services:
     volumes:
       - /volume4/configs/sabnzbd:/config
       - /volume2/Downloads:/downloads
+      - /volume3/Warehouse-2/library/Uncategorized:/library
     ports:
       - 8080:8080
     deploy:
