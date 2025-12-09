@@ -22,7 +22,7 @@ services:
                     # All three (host port, container port, BOOKLORE_PORT) must be identical for BookLore to function properly.
                     # Example: To expose on host port 7070, set BOOKLORE_PORT=7070 and use "7070:7070". 
     volumes:
-      - /volume4/configs/booklore/data:/app/data       # Application data (settings, metadata, cache, etc.). Persist this folder to retain your library state across container restarts.
+      - /volume4/app_configs/booklore/data:/app/data       # Application data (settings, metadata, cache, etc.). Persist this folder to retain your library state across container restarts.
       - /volume3/Warehouse-2/books:/books         # Primary book library folder. Mount your collection here so BookLore can access and organize your books.
       - /volume3/Warehouse-2/books/bookdrop:/bookdrop   # BookDrop folder. Files placed here are automatically detected and prepared for import.
     restart: unless-stopped
@@ -41,7 +41,7 @@ services:
       - MYSQL_USER=booklore
       - MYSQL_PASSWORD=${MYSQL_PASS}
     volumes:
-      - /volume4/configs/mariadb:/config
+      - /volume4/app_configs/mariadb:/config
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
