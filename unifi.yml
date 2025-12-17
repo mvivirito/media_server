@@ -10,20 +10,15 @@ services:
       - TZ=America/Los_Angeles
     volumes:
       - /volume4/app_configs/unifi/config:/config
+
     ports:
-      # Web UI
-      - "8443:8443"
-      # Device/AP inform
-      - "8080:8080"
-      # UniFi discovery
-      - "10001:10001/udp"
-      # STUN
-      - "3478:3478/udp"
-      # L2 discovery (optional but nice)
-      - "1900:1900/udp"
-      # Guest portal (optional)
-      - "8843:8843"
-      - "8880:8880"
-      # Speed test (optional)
-      - "6789:6789"
-    restart: unless-stopped
+      - "10001:10001/udp"   # AP discovery
+      - "3478:3478/udp"     # STUN
+      - "18443:8443"        # UniFi web UI
+      - "18080:8080"        # Device inform
+      - "18880:8880"        # Guest portal HTTP
+      - "18843:8843"        # Guest portal HTTPS 
+      - "16789:6789"        # Speed test (optional)
+
+      # Optional: multicast discovery (often not needed)
+      # - "1900:1900/udp"
