@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  unifi-network-application:
+    image: lscr.io/linuxserver/unifi-network-application:latest
+    container_name: unifi
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+    volumes:
+      - /volume4/app_configs/unifi/config:/config
+    ports:
+      # Web UI
+      - "8443:8443"
+      # Device/AP inform
+      - "8080:8080"
+      # UniFi discovery
+      - "10001:10001/udp"
+      # STUN
+      - "3478:3478/udp"
+      # L2 discovery (optional but nice)
+      - "1900:1900/udp"
+      # Guest portal (optional)
+      - "8843:8843"
+      - "8880:8880"
+      # Speed test (optional)
+      - "6789:6789"
+    restart: unless-stopped
