@@ -91,33 +91,33 @@ services:
     networks:
       - media-net
 
-  emby:
-    image: lscr.io/linuxserver/emby:latest
-    container_name: emby
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-    volumes:
-      - /volume4/app_configs/emby:/config
-      - /volume3/Warehouse-2/tv:/data/tvshows
-      - /volume2/Warehouse-1/movies:/data/movies
-    ports:
-      - 8096:8096
-      - 8920:8920
-    devices:
-      - /dev/dri:/dev/dri
-    deploy:
-      resources:
-        limits:
-          cpus: '2.5'  # High priority, 2.5 CPU cores for transcoding
-          memory: 8192M  # 8GB RAM limit for streaming/transcoding
-        reservations:
-          cpus: '1.5'  # Reserve 1.5 CPU cores
-          memory: 4096M  # Reserve 4GB RAM
-    restart: unless-stopped
-    networks:
-      - media-net
+  # emby:
+  #   image: lscr.io/linuxserver/emby:latest
+  #   container_name: emby
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Etc/UTC
+  #   volumes:
+  #     - /volume4/app_configs/emby:/config
+  #     - /volume3/Warehouse-2/tv:/data/tvshows
+  #     - /volume2/Warehouse-1/movies:/data/movies
+  #   ports:
+  #     - 8096:8096
+  #     - 8920:8920
+  #   devices:
+  #     - /dev/dri:/dev/dri
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '2.5'  # High priority, 2.5 CPU cores for transcoding
+  #         memory: 8192M  # 8GB RAM limit for streaming/transcoding
+  #       reservations:
+  #         cpus: '1.5'  # Reserve 1.5 CPU cores
+  #         memory: 4096M  # Reserve 4GB RAM
+  #   restart: unless-stopped
+  #   networks:
+  #     - media-net
 
   cloudflared:
     image: cloudflare/cloudflared:latest
