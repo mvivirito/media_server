@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd:latest
@@ -13,14 +12,6 @@ services:
       - /volume3/Warehouse-2/library/Uncategorized:/library
     ports:
       - 8080:8080
-    deploy:
-      resources:
-        limits:
-          cpus: '2.5'
-          memory: 4096M
-        reservations:
-          cpus: '1.5' 
-          memory: 4096M 
     restart: unless-stopped
     networks:
       - media-net
@@ -38,14 +29,6 @@ services:
       - /volume2/Warehouse-1/movies:/movies
     ports:
       - 7878:7878
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'  # Lower priority, 0.5 CPU core
-          memory: 512M  # 512MB RAM limit
-        reservations:
-          cpus: '0.25'
-          memory: 256M
     restart: unless-stopped
     networks:
       - media-net
@@ -63,14 +46,6 @@ services:
       - /volume3/Warehouse-2/tv:/tv
     ports:
       - 8989:8989
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'  # Lower priority, 0.5 CPU core
-          memory: 512M  # 512MB RAM limit
-        reservations:
-          cpus: '0.25'
-          memory: 256M
     restart: unless-stopped
     networks:
       - media-net
@@ -91,34 +66,6 @@ services:
     networks:
       - media-net
 
-  # emby:
-  #   image: lscr.io/linuxserver/emby:latest
-  #   container_name: emby
-  #   environment:
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=Etc/UTC
-  #   volumes:
-  #     - /volume4/app_configs/emby:/config
-  #     - /volume3/Warehouse-2/tv:/data/tvshows
-  #     - /volume2/Warehouse-1/movies:/data/movies
-  #   ports:
-  #     - 8096:8096
-  #     - 8920:8920
-  #   devices:
-  #     - /dev/dri:/dev/dri
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         cpus: '2.5'  # High priority, 2.5 CPU cores for transcoding
-  #         memory: 8192M  # 8GB RAM limit for streaming/transcoding
-  #       reservations:
-  #         cpus: '1.5'  # Reserve 1.5 CPU cores
-  #         memory: 4096M  # Reserve 4GB RAM
-  #   restart: unless-stopped
-  #   networks:
-  #     - media-net
-
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
@@ -127,14 +74,6 @@ services:
     command: tunnel --no-autoupdate run
     volumes:
       - /volume4/app_configs/cloudflared:/home/nonroot/.cloudflared
-    deploy:
-      resources:
-        limits:
-          cpus: '0.25'
-          memory: 128M
-        reservations:
-          cpus: '0.1'
-          memory: 64M
     restart: unless-stopped
     networks:
       - media-net
