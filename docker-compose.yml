@@ -7,7 +7,7 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - /volume4/app_configs/sabnzbd:/config
+      - /volume4/configs/sabnzbd:/config
       - /volume2/Downloads:/downloads
       - /volume3/Warehouse-2/library/Uncategorized:/library
     ports:
@@ -24,7 +24,7 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - /volume4/app_configs/radarr:/config
+      - /volume4/configs/radarr:/config
       - /volume2/Downloads:/downloads
       - /volume2/Warehouse-1/movies:/movies
     ports:
@@ -41,7 +41,7 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - /volume4/app_configs/sonarr:/config
+      - /volume4/configs/sonarr:/config
       - /volume2/Downloads:/downloads
       - /volume3/Warehouse-2/tv:/tv
     ports:
@@ -58,7 +58,7 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - /volume4/app_configs/nzbhydra2:/config
+      - /volume4/configs/nzbhydra2:/config
       - /volume2/Downloads:/downloads
     ports:
       - 5076:5076
@@ -73,7 +73,7 @@ services:
       - TUNNEL_TOKEN=${TOKEN}
     command: tunnel --no-autoupdate run
     volumes:
-      - /volume4/app_configs/cloudflared:/home/nonroot/.cloudflared
+      - /volume4/configs/cloudflared:/home/nonroot/.cloudflared
     restart: unless-stopped
     networks:
       - media-net
