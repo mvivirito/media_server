@@ -7,7 +7,7 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - /volume4/configs/sabnzbd:/config
+      - ${CONFIG_BASE}/sabnzbd:/config
       - /volume2/Downloads:/downloads
       - /volume3/Warehouse-2/library/Uncategorized:/library
     ports:
@@ -24,11 +24,14 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - /volume4/configs/radarr:/config
+      - ${CONFIG_BASE}/radarr:/config
       - /volume2/Downloads:/downloads
       - /volume2/Warehouse-1/movies:/movies
     ports:
       - 7878:7878
+    depends_on:
+      - sabnzbd
+      - nzbhydra2
     restart: unless-stopped
     networks:
       - media-net
@@ -41,11 +44,14 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - /volume4/configs/sonarr:/config
+      - ${CONFIG_BASE}/sonarr:/config
       - /volume2/Downloads:/downloads
       - /volume3/Warehouse-2/tv:/tv
     ports:
       - 8989:8989
+    depends_on:
+      - sabnzbd
+      - nzbhydra2
     restart: unless-stopped
     networks:
       - media-net
@@ -58,7 +64,7 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - /volume4/configs/nzbhydra2:/config
+      - ${CONFIG_BASE}/nzbhydra2:/config
       - /volume2/Downloads:/downloads
     ports:
       - 5076:5076
@@ -73,7 +79,7 @@ services:
       - TUNNEL_TOKEN=${TOKEN}
     command: tunnel --no-autoupdate run
     volumes:
-      - /volume4/configs/cloudflared:/home/nonroot/.cloudflared
+      - ${CONFIG_BASE}/cloudflared:/home/nonroot/.cloudflared
     restart: unless-stopped
     networks:
       - media-net
