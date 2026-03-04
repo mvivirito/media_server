@@ -20,6 +20,11 @@ Docker Compose stacks for a self-hosted media server running on an **Asustor AS6
      |         |               |
   [Radarr]  [Sonarr]
    :7878     :8989
+     |         |
+     └────┬────┘
+          |
+    [Profilarr]
+      :6868
 ```
 
 All services share the `media-net` external bridge network.
@@ -36,6 +41,7 @@ Automated Usenet media pipeline for movies and TV.
 | **SABnzbd** | 8080 | Usenet download client |
 | **Radarr** | 7878 | Movie monitoring — searches NZBHydra2, sends to SABnzbd |
 | **Sonarr** | 8989 | TV show monitoring — searches NZBHydra2, sends to SABnzbd |
+| **Profilarr** | 6868 | Syncs quality profiles and custom formats across Radarr/Sonarr |
 | **Cloudflared** | — | Cloudflare tunnel for secure remote access |
 
 ### BookLore Stack — `booklore.yml`
@@ -56,6 +62,7 @@ Book library management.
         ├── radarr/
         ├── sonarr/
         ├── nzbhydra2/
+        ├── profilarr/
         ├── cloudflared/
         ├── booklore/
         └── mariadb/
