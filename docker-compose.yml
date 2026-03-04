@@ -73,7 +73,7 @@ services:
       - media-net
 
   profilarr:
-    image: ghcr.io/dictionarry-hub/profilarr:latest
+    image: santiagosayshey/profilarr:latest
     container_name: profilarr
     environment:
       - PUID=1000
