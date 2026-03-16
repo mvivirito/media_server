@@ -90,6 +90,43 @@ services:
       - media-net
     restart: unless-stopped
 
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ${CONFIG_BASE}/jellyfin:/config
+      - /volume2/Warehouse-1/movies:/movies
+      - /volume3/Warehouse-2/tv:/tv
+    ports:
+      - 8096:8096
+    restart: unless-stopped
+    networks:
+      - media-net
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ${CONFIG_BASE}/bazarr:/config
+      - /volume2/Warehouse-1/movies:/movies
+      - /volume3/Warehouse-2/tv:/tv
+    ports:
+      - 6767:6767
+    depends_on:
+      - radarr
+      - sonarr
+    restart: unless-stopped
+    networks:
+      - media-net
+
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
