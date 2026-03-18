@@ -102,7 +102,7 @@ services:
       - /volume2/Warehouse-1/movies:/movies
       - /volume3/Warehouse-2/tv:/tv
     ports:
-      - 8096:8096
+      - 8099:8096
     restart: unless-stopped
     networks:
       - media-net
