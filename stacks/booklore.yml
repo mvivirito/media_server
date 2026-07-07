@@ -1,3 +1,6 @@
+# BookLore stack — ebook library + its MariaDB backend.
+# Deploy as a separate Portainer stack. Requires the external `media-net`
+# bridge and the MYSQL_ROOT_PASS + MYSQL_PASS env vars (see .env.example).
 services:
   booklore:
     # Official Docker Hub image:
@@ -18,14 +21,16 @@ services:
       mariadb:
         condition: service_healthy
     ports:
-      - "6060:6060" # HostPort:ContainerPort → Keep both numbers the same, and also ensure the container port matches BOOKLORE_PORT, no exceptions. 
+      - "6060:6060" # HostPort:ContainerPort → Keep both numbers the same, and also ensure the container port matches BOOKLORE_PORT, no exceptions.
                     # All three (host port, container port, BOOKLORE_PORT) must be identical for BookLore to function properly.
-                    # Example: To expose on host port 7070, set BOOKLORE_PORT=7070 and use "7070:7070". 
+                    # Example: To expose on host port 7070, set BOOKLORE_PORT=7070 and use "7070:7070".
     volumes:
       - ${CONFIG_BASE}/booklore/data:/app/data       # Application data (settings, metadata, cache, etc.). Persist this folder to retain your library state across container restarts.
       - /volume3/Warehouse-2/books:/books         # Primary book library folder. Mount your collection here so BookLore can access and organize your books.
       - /volume3/Warehouse-2/books/bookdrop:/bookdrop   # BookDrop folder. Files placed here are automatically detected and prepared for import.
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     networks:
       - media-net
 
@@ -43,6 +48,8 @@ services:
     volumes:
       - ${CONFIG_BASE}/mariadb:/config
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
       test: ["CMD", "mariadb-admin", "ping", "-h", "localhost"]
       interval: 5s

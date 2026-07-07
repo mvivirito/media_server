@@ -1,0 +1,25 @@
+# Monitoring — Prometheus node_exporter for the NAS host.
+# Standalone Portainer stack (no media-net dependency): exposes host metrics
+# on :9100, scraped by the monitoring LXC (10.0.0.7) as the `nas` target.
+#
+# Needs host networking + host PID + the root filesystem mounted read-only so
+# it can report the real host's CPU/mem/disk/temp rather than the container's.
+# restart: always so it comes back after a NAS reboot.
+services:
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node-exporter
+    command:
+      - '--path.rootfs=/host'
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--web.listen-address=:9100'
+      - '--collector.filesystem.mount-points-exclude=^/(host/)?(sys|proc|dev|host|etc)($|/)'
+    network_mode: host
+    pid: host
+    volumes:
+      - /:/host:ro,rslave
+    restart: always
+    read_only: true
+    security_opt:
+      - no-new-privileges:true

@@ -1,0 +1,46 @@
+# OPTIONAL — route the Usenet downloader through a VPN (gluetun).
+#
+# Why (and why not): SABnzbd already talks to the news provider over TLS (563),
+# so the payload is encrypted regardless. A VPN additionally hides *that you use
+# Usenet at all* from the ISP, at the cost of some throughput. For torrents it
+# would be essential; for Usenet it is a judgement call. This file is inert
+# (.example) — nothing runs until you fold it into media.yml and redeploy.
+#
+# To enable:
+#   1. Fill WG_PRIVATE_KEY / WG_ADDRESSES (+ provider) in the Portainer stack env.
+#   2. Add the `gluetun` service below into media.yml.
+#   3. In media.yml, change the `sabnzbd` service to ride gluetun's network:
+#        - delete sabnzbd's `ports:` and `networks:` blocks
+#        - add:   network_mode: "service:gluetun"
+#                 depends_on: [gluetun]
+#      (SABnzbd's web UI is then published by gluetun's `ports:` below, and all
+#       of SAB's traffic egresses through the tunnel. nzbhydra2 can be routed
+#       the same way if you also want indexer queries hidden.)
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - VPN_SERVICE_PROVIDER=custom   # or your provider, e.g. mullvad, protonvpn
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=${WG_PRIVATE_KEY}
+      - WIREGUARD_ADDRESSES=${WG_ADDRESSES}
+      # - SERVER_COUNTRIES=Netherlands
+      - TZ=Etc/UTC
+    ports:
+      - 8080:8080   # SABnzbd web UI, now published via the VPN container
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - media-net
+
+networks:
+  media-net:
+    driver: bridge
+    external: true
