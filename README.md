@@ -35,8 +35,10 @@ media_server/
 | **Sonarr** | 8989 | TV monitoring — searches NZBHydra2, sends to SABnzbd |
 | **Bazarr** | 6767 | Subtitles for the Radarr/Sonarr libraries |
 | **Profilarr** | 6868 | Syncs quality profiles / custom formats across Radarr/Sonarr |
-| **Jellyfin** | 8099 | Media playback (host 8099→8096; exposed publicly via the tunnel — see SECURITY.md) |
-| **Cloudflared** | — | Cloudflare tunnel for remote access |
+| **Cloudflared** | — | Cloudflare tunnel — publishes **Emby** (`emby.mvivirito.com`) remotely |
+
+> Playback is **Emby**, which runs separately (not in this compose) and is the
+> service exposed publicly through the tunnel. See SECURITY.md.
 
 ### `stacks/booklore.yml` — books
 
