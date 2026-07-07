@@ -1,0 +1,19 @@
+# Homepage global settings — https://gethomepage.dev/configs/settings/
+title: Homelab
+theme: dark
+color: slate
+headerStyle: clean
+statusStyle: dot
+layout:
+  Media:
+    style: row
+    columns: 4
+  Playback:
+    style: row
+    columns: 2
+  Books:
+    style: row
+    columns: 2
+  Infrastructure:
+    style: row
+    columns: 3

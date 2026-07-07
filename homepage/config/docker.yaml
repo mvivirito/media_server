@@ -1,0 +1,10 @@
+# Docker integration — intentionally empty.
+#
+# The docker socket is NOT mounted into Homepage: a container with the socket is
+# effectively root on the NAS, which also holds the PBS backups. To enable the
+# container status / health widgets safely, run a read-only docker-socket-proxy
+# (tecnativa/docker-socket-proxy) and point Homepage at it, e.g.:
+#
+# nas:
+#   host: socket-proxy
+#   port: 2375

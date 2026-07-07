@@ -1,0 +1,14 @@
+# Homepage info widgets (page header) — https://gethomepage.dev/configs/info-widgets/
+- resources:
+    label: NAS
+    cpu: true
+    memory: true
+    disk: /
+- search:
+    provider: duckduckgo
+    target: _blank
+- datetime:
+    text_size: xl
+    format:
+      timeStyle: short
+      dateStyle: short

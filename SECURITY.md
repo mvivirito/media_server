@@ -11,6 +11,7 @@ container escape here reaches backups — worth keeping tight.
 | Sonarr / Radarr / NZBHydra2 / Bazarr / Profilarr | LAN + Tailscale (Caddy `*.home.mvivirito.com`) | **app login — see below** | Not public; split-horizon DNS, wildcard TLS at Caddy |
 | SABnzbd | LAN + Tailscale (Caddy) | host-whitelist + app | Talks to the news provider over TLS (563) |
 | BookLore | LAN only (not proxied) | app login | Port 6060 |
+| Homepage | LAN + Tailscale (add a Caddy vhost) | none (dashboard) | Port 3000; `HOMEPAGE_ALLOWED_HOSTS` host-guard; no Docker socket |
 | **Emby** (runs separately, not in this compose) | **public internet** via Cloudflare Tunnel (`emby.mvivirito.com`) | **app login only** | Biggest attack surface — see below |
 | Portainer | LAN + Tailscale (Caddy) | Portainer login | Manages every container + the Docker socket |
 | node-exporter | LAN `:9100` | none (read-only metrics) | Fleet convention; scraped by 10.0.0.7 |
@@ -22,6 +23,8 @@ container escape here reaches backups — worth keeping tight.
   root→PUID, which `no_new_privs` does not prevent).
 - **`cap_drop: ALL`** on cloudflared (needs only outbound network).
 - **node-exporter** runs `read_only` with the host mounted `:ro`.
+- **Homepage** has no Docker socket mounted (its widgets use per-app API keys
+  from `HOMEPAGE_VAR_*` env, not the socket); `HOMEPAGE_ALLOWED_HOSTS` set.
 - **`.gitignore` + `.env.example`** — secrets live in Portainer stack env vars,
   never in git. No secret has ever been committed (history checked).
 - **Repo made private** (GitHub) + mirrored to private Gitea. A public repo

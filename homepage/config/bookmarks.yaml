@@ -1,0 +1,11 @@
+# Homepage bookmarks — https://gethomepage.dev/configs/bookmarks/
+- Homelab:
+    - Gitea:
+        - abbr: GT
+          href: https://git.home.mvivirito.com
+    - Proxmox:
+        - abbr: PVE
+          href: https://pve.home.mvivirito.com
+    - PBS:
+        - abbr: PBS
+          href: https://pbs.home.mvivirito.com

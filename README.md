@@ -13,10 +13,13 @@ notes live in [SECURITY.md](SECURITY.md).
 ```
 media_server/
 ├── stacks/
-│   ├── media.yml                   # Usenet pipeline + playback (main stack)
+│   ├── media.yml                   # Usenet download/organize pipeline (main stack)
 │   ├── booklore.yml                # ebook library + MariaDB
+│   ├── homepage.yml                # dashboard / start page (config-as-code)
 │   ├── monitoring.yml              # node-exporter (host metrics → Prometheus)
 │   └── downloader-vpn.yml.example  # optional gluetun VPN for SABnzbd
+├── homepage/config/                # Homepage's YAML config — the dashboard itself
+│   ├── settings.yaml  services.yaml  widgets.yaml  bookmarks.yaml  docker.yaml
 ├── .env.example                    # env vars (secrets go in Portainer, not here)
 ├── .env                            # CONFIG_BASE only (non-secret)
 ├── README.md
@@ -40,6 +43,22 @@ media_server/
 > Playback is **Emby**, which runs separately (not in this compose) and is the
 > service exposed publicly through the tunnel. See SECURITY.md.
 
+### `stacks/homepage.yml` — dashboard
+
+[Homepage](https://gethomepage.dev) start page with live widgets for the *arr
+apps, SABnzbd, and Emby. **Config-as-code**: the dashboard is the YAML under
+`homepage/config/` in this repo, not a database — edit the files, redeploy.
+
+| Service | Port | Description |
+|---------|------|-------------|
+| **Homepage** | 3000 | Dashboard. Widget API keys via `HOMEPAGE_VAR_*` (Portainer env); no Docker socket (see SECURITY.md). |
+
+Maps `/app/config` to `${CONFIG_BASE}/homepage` on the NAS — seed that dir from
+`homepage/config/`. To keep it fully git-driven, deploy as a Portainer **Git
+repository** stack so a commit + redeploy re-pulls the config. `HOMEPAGE_ALLOWED_HOSTS`
+is set in the compose (host-header guard); add a `homepage.home.mvivirito.com`
+Caddy vhost to reach it with the wildcard cert like the other services.
+
 ### `stacks/booklore.yml` — books
 
 | Service | Port | Description |
@@ -58,8 +77,8 @@ media_server/
 ```
 /volume1/configs/       # persistent config for every service (RAID volume)
 /volume2/Downloads/     # SABnzbd download target
-/volume2/Warehouse-1/movies/    # Radarr / Jellyfin movies
-/volume3/Warehouse-2/tv/        # Sonarr / Jellyfin TV
+/volume2/Warehouse-1/movies/    # Radarr movies (served by Emby)
+/volume3/Warehouse-2/tv/        # Sonarr TV (served by Emby)
 /volume3/Warehouse-2/books/     # BookLore (+ bookdrop/ auto-import)
 ```
 

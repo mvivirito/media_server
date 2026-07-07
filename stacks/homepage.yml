@@ -1,0 +1,34 @@
+# Homepage — config-as-code dashboard (gethomepage.dev). The YAML under
+# homepage/config/ in this repo IS the dashboard; edit it there, not in a UI.
+#
+# Deploy: this maps /app/config to ${CONFIG_BASE}/homepage on the NAS — seed
+# that dir from this repo's homepage/config/. To keep it fully git-driven,
+# deploy this as a Portainer *Git repository* stack so a commit + redeploy
+# re-pulls the config.
+#
+# HOMEPAGE_ALLOWED_HOSTS is required (host-header guard; non-secret, set here).
+# Widget API keys come from HOMEPAGE_VAR_* env vars set in Portainer — the
+# config references them as {{HOMEPAGE_VAR_*}} so no key is ever committed.
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - HOMEPAGE_ALLOWED_HOSTS=homepage.home.mvivirito.com,10.0.0.108:3000
+    volumes:
+      - ${CONFIG_BASE}/homepage:/app/config
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - media-net
+
+networks:
+  media-net:
+    driver: bridge
+    external: true
