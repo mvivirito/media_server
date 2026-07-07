@@ -13,8 +13,9 @@ notes live in [SECURITY.md](SECURITY.md).
 ```
 media_server/
 ├── stacks/
-│   ├── media.yml                   # Usenet pipeline + playback (main stack)
+│   ├── media.yml                   # Usenet download/organize pipeline (main stack)
 │   ├── booklore.yml                # ebook library + MariaDB
+│   ├── homarr.yml                  # dashboard / start page for the stack
 │   ├── monitoring.yml              # node-exporter (host metrics → Prometheus)
 │   └── downloader-vpn.yml.example  # optional gluetun VPN for SABnzbd
 ├── .env.example                    # env vars (secrets go in Portainer, not here)
@@ -46,6 +47,12 @@ media_server/
 |---------|------|-------------|
 | **BookLore** | 6060 | Book library management |
 | **MariaDB** | — | 11.4.5 database backend for BookLore |
+
+### `stacks/homarr.yml` — dashboard
+
+| Service | Port | Description |
+|---------|------|-------------|
+| **Homarr** | 7575 | Customizable start page with live widgets for the *arr apps + SABnzbd. Needs `HOMARR_SECRET` (Portainer env). Docker socket intentionally not mounted — see SECURITY.md. |
 
 ### `stacks/monitoring.yml` — host metrics
 

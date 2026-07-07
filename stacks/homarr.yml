@@ -1,0 +1,34 @@
+# Homarr — self-hosted dashboard / start page for the media stack.
+# Standalone Portainer stack; joins the external media-net so it can reach the
+# *arr apps by container name (e.g. http://sonarr:8989) with their API keys.
+#
+# SECRET_ENCRYPTION_KEY is required (Homarr encrypts stored integration creds
+# with it). Generate once and set it as a Portainer env var — never commit it:
+#     openssl rand -hex 32
+#
+# NOTE (security): Homarr's optional Docker integration wants the docker socket.
+# It is deliberately NOT mounted here — a container with the docker socket is
+# effectively root on the NAS, which also holds the PBS backups. If you want the
+# container/health widgets, front the socket with a read-only socket-proxy
+# (tecnativa/docker-socket-proxy) rather than bind-mounting /var/run/docker.sock.
+services:
+  homarr:
+    image: ghcr.io/homarr-labs/homarr:latest
+    container_name: homarr
+    environment:
+      - TZ=Etc/UTC
+      - SECRET_ENCRYPTION_KEY=${HOMARR_SECRET}
+    volumes:
+      - ${CONFIG_BASE}/homarr:/appdata
+    ports:
+      - 7575:7575
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - media-net
+
+networks:
+  media-net:
+    driver: bridge
+    external: true
