@@ -11,7 +11,7 @@ container escape here reaches backups — worth keeping tight.
 | Sonarr / Radarr / NZBHydra2 / Bazarr / Profilarr | LAN + Tailscale (Caddy `*.home.mvivirito.com`) | **app login — see below** | Not public; split-horizon DNS, wildcard TLS at Caddy |
 | SABnzbd | LAN + Tailscale (Caddy) | host-whitelist + app | Talks to the news provider over TLS (563) |
 | BookLore | LAN only (not proxied) | app login | Port 6060 |
-| **Jellyfin** | **public internet** via Cloudflare Tunnel | **app login only** | Biggest attack surface — see below |
+| **Emby** (runs separately, not in this compose) | **public internet** via Cloudflare Tunnel (`emby.mvivirito.com`) | **app login only** | Biggest attack surface — see below |
 | Portainer | LAN + Tailscale (Caddy) | Portainer login | Manages every container + the Docker socket |
 | node-exporter | LAN `:9100` | none (read-only metrics) | Fleet convention; scraped by 10.0.0.7 |
 
@@ -34,13 +34,12 @@ container escape here reaches backups — worth keeping tight.
    Settings → General → Security → Authentication = **Forms (login page)**,
    Authentication Required = **Enabled** (not "Disabled for Local Addresses").
    This is app config, not compose — do it in each UI once.
-2. **Jellyfin is on the public internet.** Hardening, in priority order:
-   put **Cloudflare Access** (Zero Trust, free tier) in front of the tunnel
-   hostname so unauthenticated requests never reach Jellyfin; disable
-   Dashboard → Networking → "Enable remote connections" if all outside access
-   goes through the tunnel; turn off Quick Connect; keep a strong admin
-   password + no anonymous access. Consider whether it needs to be public at
-   all vs. Tailscale-only.
+2. **Emby is on the public internet** (via the tunnel — it runs separately, not
+   in this compose). Hardening, in priority order: put **Cloudflare Access**
+   (Zero Trust, free tier) in front of `emby.mvivirito.com` so unauthenticated
+   requests never reach Emby; keep a strong admin password + no anonymous
+   access; disable any unused remote-access/discovery features. Consider
+   whether it needs to be public at all vs. Tailscale-only.
 3. **VPN for the downloader (optional).** `stacks/downloader-vpn.yml.example`
    scaffolds gluetun for SABnzbd. Usenet is already TLS, so this mainly hides
    Usenet use from the ISP; enable only if you want that (costs throughput).

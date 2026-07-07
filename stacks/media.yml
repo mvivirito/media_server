@@ -1,4 +1,6 @@
-# Media automation stack — Usenet pipeline + playback.
+# Media automation stack — the Usenet download/organize pipeline.
+# Playback is Emby (runs separately, reached publicly via the cloudflared
+# tunnel at emby.mvivirito.com); it is not defined in this compose.
 # Deploy as a Portainer stack. Requires the external `media-net` bridge
 # (see README) and the CONFIG_BASE + TOKEN env vars.
 #
@@ -123,25 +125,6 @@ services:
     depends_on:
       - radarr
       - sonarr
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    networks:
-      - media-net
-
-  jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
-    container_name: jellyfin
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-    volumes:
-      - ${CONFIG_BASE}/jellyfin:/config
-      - /volume2/Warehouse-1/movies:/movies
-      - /volume3/Warehouse-2/tv:/tv
-    ports:
-      - 8099:8096   # host 8099 avoids a conflict on 8096 (kept from the upstream fix)
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
