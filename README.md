@@ -4,9 +4,9 @@ Docker Compose stacks for a self-hosted media server on an **Asustor AS6704T**
 NAS (`10.0.0.108`), deployed via **Portainer**. Security posture and hardening
 notes live in [SECURITY.md](SECURITY.md).
 
-> Private repo — the Usenet automation shouldn't be public. `origin` is the
-> (now private) GitHub `mvivirito/media_server`; also mirrored to private Gitea
-> `git.k8s.home/michael/media_server` for homelab-local backup + consistency.
+> `origin` is GitHub `mvivirito/media_server` (public); also mirrored to Gitea
+> `git.k8s.home/michael/media_server` for a homelab-local backup. No secrets
+> live in git — they're set as Portainer env vars (see SECURITY.md).
 
 ## Layout
 

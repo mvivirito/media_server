@@ -27,8 +27,11 @@ container escape here reaches backups — worth keeping tight.
   from `HOMEPAGE_VAR_*` env, not the socket); `HOMEPAGE_ALLOWED_HOSTS` set.
 - **`.gitignore` + `.env.example`** — secrets live in Portainer stack env vars,
   never in git. No secret has ever been committed (history checked).
-- **Repo made private** (GitHub) + mirrored to private Gitea. A public repo
-  documenting the Usenet automation is itself an OPSEC leak.
+- **No secrets in git** — history was checked; all creds are Portainer env
+  vars. The repo is public (GitHub) + mirrored to Gitea. Being public is an
+  OPSEC/optics choice (it name-attaches the Usenet stack), not a security gap:
+  nothing in it is externally reachable and no credential is exposed. Kept
+  public so Portainer's git deploy needs no token.
 
 ## Recommended next (needs your action / a decision)
 
