@@ -1,12 +1,12 @@
 # Homepage services — https://gethomepage.dev/configs/services/
-# Widget `url` uses container names (all on media-net); `href` is the LAN Caddy
-# URL for click-through. API keys are pulled from Portainer env as
-# {{HOMEPAGE_VAR_*}} — the dashboard renders without them, just no live stats.
+# Widget `url` uses container names; `href` uses {{HOMEPAGE_VAR_DOMAIN}} and
+# {{HOMEPAGE_VAR_NAS}}, both set as env vars at deploy time (never committed).
+# API keys come from {{HOMEPAGE_VAR_*}} too — tiles render without them.
 
 - Media:
     - Sonarr:
         icon: sonarr.png
-        href: https://sonarr.home.mvivirito.com
+        href: https://sonarr.home.{{HOMEPAGE_VAR_DOMAIN}}
         description: TV automation
         widget:
           type: sonarr
@@ -14,7 +14,7 @@
           key: "{{HOMEPAGE_VAR_SONARR_KEY}}"
     - Radarr:
         icon: radarr.png
-        href: https://radarr.home.mvivirito.com
+        href: https://radarr.home.{{HOMEPAGE_VAR_DOMAIN}}
         description: Movie automation
         widget:
           type: radarr
@@ -22,7 +22,7 @@
           key: "{{HOMEPAGE_VAR_RADARR_KEY}}"
     - SABnzbd:
         icon: sabnzbd.png
-        href: https://sab.home.mvivirito.com
+        href: https://sab.home.{{HOMEPAGE_VAR_DOMAIN}}
         description: Usenet downloader
         widget:
           type: sabnzbd
@@ -30,7 +30,7 @@
           key: "{{HOMEPAGE_VAR_SABNZBD_KEY}}"
     - Bazarr:
         icon: bazarr.png
-        href: http://10.0.0.108:6767
+        href: http://{{HOMEPAGE_VAR_NAS}}:6767
         description: Subtitles
         widget:
           type: bazarr
@@ -40,37 +40,31 @@
 - Playback:
     - Emby:
         icon: emby.png
-        href: https://emby.mvivirito.com
+        href: https://emby.{{HOMEPAGE_VAR_DOMAIN}}
         description: Media server
         widget:
           type: emby
-          url: http://10.0.0.108:8096   # adjust to your Emby host/port
+          url: http://{{HOMEPAGE_VAR_NAS}}:8096
           key: "{{HOMEPAGE_VAR_EMBY_KEY}}"
     - NZBHydra2:
         icon: nzbhydra2.png
-        href: https://hydra.home.mvivirito.com
+        href: https://hydra.home.{{HOMEPAGE_VAR_DOMAIN}}
         description: Indexer search
-
-- Books:
-    - BookLore:
-        icon: mdi-book-open-page-variant
-        href: http://10.0.0.108:6060
-        description: eBook library
     - Profilarr:
         icon: mdi-tune-variant
-        href: http://10.0.0.108:6868
+        href: http://{{HOMEPAGE_VAR_NAS}}:6868
         description: Quality profiles
 
 - Infrastructure:
     - Grafana:
         icon: grafana.png
-        href: https://grafana.home.mvivirito.com
+        href: https://grafana.home.{{HOMEPAGE_VAR_DOMAIN}}
         description: Metrics + dashboards
     - Portainer:
         icon: portainer.png
-        href: https://portainer.home.mvivirito.com
+        href: https://portainer.home.{{HOMEPAGE_VAR_DOMAIN}}
         description: Containers
-    - NAS (ADM):
+    - NAS:
         icon: mdi-nas
-        href: https://nas.home.mvivirito.com
-        description: Asustor ADM
+        href: https://nas.home.{{HOMEPAGE_VAR_DOMAIN}}
+        description: NAS admin

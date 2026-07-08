@@ -1,17 +1,8 @@
-# Homepage — config-as-code dashboard (gethomepage.dev). The YAML under
-# homepage/config/ in this repo IS the dashboard; edit it there, not in a UI.
-#
-# Deploy: this maps /app/config to ${CONFIG_BASE}/homepage on the NAS — seed
-# that dir from this repo's homepage/config/. To keep it fully git-driven,
-# deploy this as a Portainer *Git repository* stack so a commit + redeploy
-# re-pulls the config.
-#
-# HOMEPAGE_ALLOWED_HOSTS is required (host-header guard; non-secret, set here).
-# Widget API keys come from HOMEPAGE_VAR_* stack env vars set in Portainer and
-# are passed through to the container below (the compose `environment:` must
-# name them — Portainer stack env alone is only used for ${..} interpolation,
-# it does NOT reach the container). The config references them as
-# {{HOMEPAGE_VAR_*}}, so no key value is ever committed to git.
+# Homepage — dashboard (gethomepage.dev). The config lives in homepage/config/.
+# Deploy maps /app/config to ${CONFIG_BASE}/homepage; seed it from this repo.
+# Site-specific values (domain, host, widget keys) are env vars set at deploy
+# time — nothing site-specific is committed. The config references them as
+# {{HOMEPAGE_VAR_*}}; the compose must name each one to reach the container.
 services:
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
@@ -20,7 +11,9 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
-      - HOMEPAGE_ALLOWED_HOSTS=homepage.home.mvivirito.com,10.0.0.108:3000
+      - HOMEPAGE_ALLOWED_HOSTS=${HOMEPAGE_ALLOWED_HOSTS:-}
+      - HOMEPAGE_VAR_DOMAIN=${HOMEPAGE_VAR_DOMAIN:-}
+      - HOMEPAGE_VAR_NAS=${HOMEPAGE_VAR_NAS:-}
       - HOMEPAGE_VAR_SONARR_KEY=${HOMEPAGE_VAR_SONARR_KEY:-}
       - HOMEPAGE_VAR_RADARR_KEY=${HOMEPAGE_VAR_RADARR_KEY:-}
       - HOMEPAGE_VAR_SABNZBD_KEY=${HOMEPAGE_VAR_SABNZBD_KEY:-}

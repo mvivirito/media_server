@@ -1,12 +1,6 @@
 # Media automation stack — the Usenet download/organize pipeline.
-# Playback is Emby (runs separately, reached publicly via the cloudflared
-# tunnel at emby.mvivirito.com); it is not defined in this compose.
-# Deploy as a Portainer stack. Requires the external `media-net` bridge
-# (see README) and the CONFIG_BASE + TOKEN env vars.
-#
-# Hardening: every service runs with no-new-privileges (the LinuxServer s6
-# init still drops root -> PUID fine; no_new_privs only blocks *gaining*
-# privileges). See SECURITY.md for app-level auth + exposure notes.
+# Deploy as a Portainer stack. Requires the external `media-net` bridge and the
+# CONFIG_BASE env var (+ TOKEN for the optional cloudflared tunnel).
 services:
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd:latest
