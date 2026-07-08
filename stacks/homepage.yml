@@ -7,8 +7,11 @@
 # re-pulls the config.
 #
 # HOMEPAGE_ALLOWED_HOSTS is required (host-header guard; non-secret, set here).
-# Widget API keys come from HOMEPAGE_VAR_* env vars set in Portainer — the
-# config references them as {{HOMEPAGE_VAR_*}} so no key is ever committed.
+# Widget API keys come from HOMEPAGE_VAR_* stack env vars set in Portainer and
+# are passed through to the container below (the compose `environment:` must
+# name them — Portainer stack env alone is only used for ${..} interpolation,
+# it does NOT reach the container). The config references them as
+# {{HOMEPAGE_VAR_*}}, so no key value is ever committed to git.
 services:
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
@@ -18,6 +21,11 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
       - HOMEPAGE_ALLOWED_HOSTS=homepage.home.mvivirito.com,10.0.0.108:3000
+      - HOMEPAGE_VAR_SONARR_KEY=${HOMEPAGE_VAR_SONARR_KEY:-}
+      - HOMEPAGE_VAR_RADARR_KEY=${HOMEPAGE_VAR_RADARR_KEY:-}
+      - HOMEPAGE_VAR_SABNZBD_KEY=${HOMEPAGE_VAR_SABNZBD_KEY:-}
+      - HOMEPAGE_VAR_BAZARR_KEY=${HOMEPAGE_VAR_BAZARR_KEY:-}
+      - HOMEPAGE_VAR_EMBY_KEY=${HOMEPAGE_VAR_EMBY_KEY:-}
     volumes:
       - ${CONFIG_BASE}/homepage:/app/config
     ports:
