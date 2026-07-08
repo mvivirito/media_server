@@ -18,7 +18,9 @@ services:
     network_mode: host
     pid: host
     volumes:
-      - /:/host:ro,rslave
+      # plain :ro (private) — the NAS root is not a shared/slave mount, so
+      # rslave propagation is rejected by its Docker daemon.
+      - /:/host:ro
     restart: always
     read_only: true
     security_opt:
