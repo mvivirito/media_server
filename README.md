@@ -15,9 +15,28 @@ media_server/
 │   ├── monitoring.yml              # node-exporter (host metrics for Prometheus)
 │   └── downloader-vpn.yml.example  # optional gluetun VPN for the downloader
 ├── homepage/config/                # Homepage's YAML config (the dashboard)
+├── deploy.sh                       # push a stack to Portainer, secrets injected from SOPS
 ├── .env.example                    # environment variables (secrets go in Portainer)
 └── README.md
 ```
+
+## Deploy
+
+`deploy.sh` pushes a stack to Portainer with its **secret** env (the *arr API
+keys) decrypted from a SOPS-encrypted file at deploy time — nothing secret is
+committed here. Compose comes from `stacks/<name>.yml`; non-secret env (domain,
+host) is preserved from the running stack.
+
+```sh
+PORTAINER_URL=https://<nas>:9443 \
+SECRETS_FILE=/path/to/media.enc.yaml \
+./deploy.sh homepage
+# DRY_RUN=1 ... ./deploy.sh homepage    # show the env diff, change nothing
+```
+
+SOPS key `sonarr-api-key` maps to stack env `HOMEPAGE_VAR_SONARR_KEY`, etc. See
+the `deploy.sh` header for all env vars (Portainer user/password-file default to
+`nixie` / `/run/secrets/portainer`).
 
 ## Stacks
 
