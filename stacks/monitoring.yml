@@ -12,13 +12,45 @@ services:
       - '--path.sysfs=/host/sys'
       - '--web.listen-address=:9100'
       - '--collector.filesystem.mount-points-exclude=^/(host/)?(sys|proc|dev|host|etc)($|/)'
+      - '--collector.textfile.directory=/textfile'
     network_mode: host
     pid: host
     volumes:
       # plain :ro (private) — the NAS root is not a shared/slave mount, so
       # rslave propagation is rejected by its Docker daemon.
       - /:/host:ro
+      - /volume1/configs/monitoring/textfile:/textfile:ro
     restart: always
     read_only: true
+    security_opt:
+      - no-new-privileges:true
+
+  # Host-truth sidecar: SMART health, ADM Cloud Backup Center job history,
+  # container image ages, i915 render-node self-heal. Writes textfile metrics
+  # that node-exporter (above) exposes. See monitoring/collect.py in the repo;
+  # the script is deployed to the configs share and mounted read-only.
+  nas-metrics:
+    image: alpine:3.20
+    container_name: nas-metrics
+    command: sh -c "apk add --no-cache smartmontools python3 >/dev/null && exec python3 -u /collect.py"
+    # host networking like node-exporter: the default bridge has no outbound
+    # internet on this platform, and apk needs to fetch at start
+    network_mode: host
+    cap_add:
+      - SYS_RAWIO   # smartctl raw commands
+      - SYS_ADMIN   # smartctl on some controllers
+      - MKNOD       # recreate /dev/dri/renderD128 when udev misses it
+    devices:
+      - /dev/sda:/dev/sda
+      - /dev/sdb:/dev/sdb
+      - /dev/sdc:/dev/sdc
+      - /dev/sdd:/dev/sdd
+    volumes:
+      - /volume1/configs/monitoring/collect.py:/collect.py:ro
+      - /volume1/configs/monitoring/textfile:/textfile
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /usr/local/AppCentral/cloudBackupCenter/database:/cbc:ro
+      - /dev/dri:/host-dri
+    restart: always
     security_opt:
       - no-new-privileges:true
