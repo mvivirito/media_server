@@ -52,7 +52,7 @@
         description: Indexer search
     - Profilarr:
         icon: mdi-tune-variant
-        href: http://{{HOMEPAGE_VAR_NAS}}:6868
+        href: https://profilarr.home.{{HOMEPAGE_VAR_DOMAIN}}
         description: Quality profiles
 
 - Infrastructure:
