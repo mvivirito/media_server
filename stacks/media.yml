@@ -125,6 +125,32 @@ services:
     networks:
       - media-net
 
+  # Media server. Config under CONFIG_BASE rides the same offsite backup job
+  # as the other apps. Library volumes mount at their HOST paths on purpose:
+  # the migrated database references absolute paths, so mirroring them means
+  # zero library re-pathing. /dev/dri passthrough = QuickSync transcode (the
+  # render node is kept alive by the nas-metrics sidecar).
+  emby:
+    image: lscr.io/linuxserver/emby:latest
+    container_name: emby
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - ${CONFIG_BASE}/emby:/config
+      - /volume2/Warehouse-1:/volume2/Warehouse-1:ro
+      - /volume3/Warehouse-2:/volume3/Warehouse-2:ro
+    devices:
+      - /dev/dri:/dev/dri
+    ports:
+      - 8096:8096
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - media-net
+
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
