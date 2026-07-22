@@ -59,8 +59,25 @@ def smart_metrics():
     return lines
 
 
+def cbc_active_jobs():
+    """Job names that still exist — deleted jobs stay in the log DB forever,
+    but their task_configure file is removed, so metrics should stop too."""
+    active = set()
+    for path in glob.glob("/cbc/CBC_task_configure/*"):
+        try:
+            with open(path) as f:
+                for line in f:
+                    if line.startswith("task_name = "):
+                        active.add(line.split(" = ", 1)[1].strip())
+                        break
+        except Exception:
+            pass
+    return active
+
+
 def cbc_metrics():
     lines = []
+    active = cbc_active_jobs()
     c = sqlite3.connect(f"file:{CBC_DB}?mode=ro", uri=True)
     rows = c.execute(
         "SELECT timestamp_of_log, status_of_log, name_of_log, event_of_log "
@@ -72,6 +89,8 @@ def cbc_metrics():
         if not m:
             continue
         job = m.group(1)
+        if active and job not in active:
+            continue
         if status == "SUCCESS" and "finished" in (name or ""):
             last_ok[job] = int(ts)
             running[job] = 0
