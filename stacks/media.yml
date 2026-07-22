@@ -141,6 +141,10 @@ services:
       - ${CONFIG_BASE}/emby:/config
       - /volume2/Warehouse-1:/volume2/Warehouse-1:ro
       - /volume3/Warehouse-2:/volume3/Warehouse-2:ro
+      # host /tmp is tmpfs: transcode segments in RAM instead of the HDD
+      # mirror — snappier seeks, especially with subtitle burn-in, and less
+      # churn on volume1. Set the path in Emby: Transcoding -> /transcode
+      - /tmp/emby-transcode:/transcode
     devices:
       - /dev/dri:/dev/dri
     ports:
