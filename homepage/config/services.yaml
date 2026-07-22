@@ -30,7 +30,7 @@
           key: "{{HOMEPAGE_VAR_SABNZBD_KEY}}"
     - Bazarr:
         icon: bazarr.png
-        href: http://{{HOMEPAGE_VAR_NAS}}:6767
+        href: https://bazarr.home.{{HOMEPAGE_VAR_DOMAIN}}
         description: Subtitles
         widget:
           type: bazarr

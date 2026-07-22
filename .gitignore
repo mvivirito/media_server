@@ -8,3 +8,7 @@ secrets*
 *.key
 *wireguard*.conf
 wg*.conf
+
+# python bytecode from local edits of the collector
+__pycache__/
+*.pyc
