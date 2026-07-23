@@ -154,6 +154,9 @@ services:
       - no-new-privileges:true
     networks:
       - media-net
+      # edge-net: shared with cloudflared only, so the tunnel process can
+      # reach Emby but nothing else in the stack (tunnel-pivot containment)
+      - edge-net
 
   cloudflared:
     image: cloudflare/cloudflared:latest
@@ -169,9 +172,14 @@ services:
     cap_drop:
       - ALL
     networks:
-      - media-net
+      # deliberately NOT on media-net: the tunnel connector only ever needs
+      # the service it publishes (emby), never the rest of the stack
+      - edge-net
 
 networks:
   media-net:
+    driver: bridge
+    external: true
+  edge-net:
     driver: bridge
     external: true
