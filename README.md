@@ -12,7 +12,6 @@ media_server/
 │   ├── media.yml                   # Usenet download/organize pipeline (main stack)
 │   ├── booklore.yml                # ebook library + MariaDB
 │   ├── homepage.yml                # dashboard / start page
-│   ├── monitoring.yml              # node-exporter (host metrics for Prometheus)
 │   └── downloader-vpn.yml.example  # optional gluetun VPN for the downloader
 ├── homepage/config/                # Homepage's YAML config (the dashboard)
 ├── deploy.sh                       # push a stack to Portainer, secrets injected from SOPS
@@ -59,9 +58,6 @@ BookLore (6060) + MariaDB — ebook library.
 [Homepage](https://gethomepage.dev) dashboard (3000). Config is the YAML under
 `homepage/config/`; domain/host/keys come from `HOMEPAGE_*` env vars.
 
-### `stacks/monitoring.yml`
-Prometheus `node-exporter` (9100) — host metrics.
-
 ## Deployment (Portainer)
 
 Create the shared network once, then deploy each stack and set its env vars
@@ -71,8 +67,7 @@ Create the shared network once, then deploy each stack and set its env vars
 docker network create media-net
 ```
 
-`monitoring.yml` is standalone (host networking, no `media-net`). For Homepage,
-seed `${CONFIG_BASE}/homepage` from `homepage/config/`.
+For Homepage, seed `${CONFIG_BASE}/homepage` from `homepage/config/`.
 
 ## Conventions
 
