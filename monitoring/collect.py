@@ -40,8 +40,22 @@ def smart_metrics():
                                capture_output=True, text=True, timeout=60)
             out = p.stdout
             model = (re.search(r"Device Model:\s+(.+)", out) or [None, "unknown"])[1].strip()
-            healthy = 1 if re.search(r"self-assessment test result: PASSED", out) else 0
+            overall_passed = bool(re.search(r"self-assessment test result: PASSED", out))
+            # A pre-fail attribute below threshold with raw == 0 is vendor
+            # normalization noise (e.g. Seagate Spin_Retry_Count), not a fault.
+            # Only an attribute failing with real events (raw > 0) = unhealthy.
+            real_failing = 0
+            for line in out.splitlines():
+                if "FAILING_NOW" in line:
+                    raw = line.split()[-1]
+                    try:
+                        real_failing += 1 if int(raw) > 0 else 0
+                    except ValueError:
+                        real_failing += 1          # unparseable -> conservative
+            healthy = 1 if (overall_passed or real_failing == 0) else 0
             lines.append(f'nas_smart_healthy{{disk="{disk}",model="{model}"}} {healthy}')
+            lines.append(f'nas_smart_overall_passed{{disk="{disk}"}} {int(overall_passed)}')
+            lines.append(f'nas_smart_real_failing_attributes{{disk="{disk}"}} {real_failing}')
             for attr_id, name, metric in (
                 ("194", "Temperature_Celsius", "nas_smart_temperature_celsius"),
                 ("9", "Power_On_Hours", "nas_smart_power_on_hours"),
