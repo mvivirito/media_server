@@ -100,11 +100,11 @@ def cbc_metrics():
             last_err[job] = int(ts)
             running[job] = 0
     for job, ts in last_ok.items():
-        lines.append(f'nas_cbc_job_last_success_timestamp{{job="{job}"}} {ts}')
+        lines.append(f'nas_cbc_job_last_success_timestamp{{cbc_job="{job}"}} {ts}')
     for job, ts in last_err.items():
-        lines.append(f'nas_cbc_job_last_error_timestamp{{job="{job}"}} {ts}')
+        lines.append(f'nas_cbc_job_last_error_timestamp{{cbc_job="{job}"}} {ts}')
     for job, r in running.items():
-        lines.append(f'nas_cbc_job_running{{job="{job}"}} {r}')
+        lines.append(f'nas_cbc_job_running{{cbc_job="{job}"}} {r}')
     return lines
 
 
