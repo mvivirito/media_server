@@ -1,26 +1,21 @@
 #!/usr/bin/env bash
-# Deploy a media stack to Portainer with secrets injected from a SOPS file.
+# Deploy a stack to Portainer from this repo's compose file.
 #
-# Compose comes from stacks/<name>.yml (source of truth). Non-secret env is
-# preserved from the running stack. Secret env (the *arr API keys) is decrypted
-# from $SECRETS_FILE at deploy time and injected via the Portainer API — nothing
-# secret is committed to this repo.
-#
-# SOPS key `sonarr-api-key` maps to stack env `HOMEPAGE_VAR_SONARR_KEY`, etc.
+# Compose comes from stacks/<name>.yml (source of truth). The stack's existing
+# Portainer env is preserved as-is, so secrets/site-specific values stay in
+# Portainer and are never committed to this repo.
 #
 # Usage:
-#   PORTAINER_URL=https://host:9443 SECRETS_FILE=/path/media.enc.yaml ./deploy.sh homepage
-#   DRY_RUN=1 ... ./deploy.sh homepage      # show the env/compose diff, no changes
+#   PORTAINER_URL=https://host:9443 ./deploy.sh media
+#   DRY_RUN=1 ... ./deploy.sh media       # show the stack/env that would be pushed
 #
 # Env vars:
-#   PORTAINER_URL      (required)  e.g. https://10.0.0.108:19943
-#   SECRETS_FILE       (required)  SOPS-encrypted yaml (age); decrypted with your key
+#   PORTAINER_URL      (required)  e.g. https://nas-host:9443
 #   PORTAINER_USER     (default: nixie)
 #   PORTAINER_PW_FILE  (default: /run/secrets/portainer)
 set -euo pipefail
-STACK="${1:-homepage}"
+STACK="${1:?usage: ./deploy.sh <stack>   (stacks/<stack>.yml)}"
 : "${PORTAINER_URL:?set PORTAINER_URL}"
-: "${SECRETS_FILE:?set SECRETS_FILE (SOPS-encrypted media secrets)}"
 PUSER="${PORTAINER_USER:-nixie}"
 PWFILE="${PORTAINER_PW_FILE:-/run/secrets/portainer}"
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -41,18 +36,12 @@ st=$(c "${A[@]}" "$PORTAINER_URL/api/stacks" | jq --arg n "$STACK" 'map(select(.
 [ -n "$st" ] || { echo "stack '$STACK' not found in Portainer" >&2; exit 1; }
 sid=$(jq -r '.Id' <<<"$st"); eid=$(jq -r '.EndpointId' <<<"$st")
 
-# --- assemble env: current values, arr keys overridden from SOPS ---
-cur_env=$(c "${A[@]}" "$PORTAINER_URL/api/stacks/$sid" | jq '.Env // []')
-ovr=$(sops decrypt --output-type json "$SECRETS_FILE" | jq -c '
-  to_entries | map({ name: ("HOMEPAGE_VAR_" + (.key|ascii_upcase|sub("-API-KEY";"")|gsub("-";"_")) + "_KEY"), value }) ')
-env_json=$(jq -c --argjson o "$ovr" '
-  ((map({(.name):.value})|add) + ($o|map({(.name):.value})|add)) | to_entries | map({name:.key, value:.value})
-' <<<"$cur_env")
+# --- env: keep exactly what the stack already has (set in the Portainer UI) ---
+env_json=$(c "${A[@]}" "$PORTAINER_URL/api/stacks/$sid" | jq -c '.Env // []')
 
 if [ "${DRY_RUN:-0}" = 1 ]; then
   echo "stack=$STACK id=$sid endpoint=$eid"
-  echo "env var names after merge:"; jq -r '.[].name' <<<"$env_json" | sed 's/^/  /'
-  echo "arr-key env being set from SOPS (values hidden):"; jq -r '.[].name' <<<"$ovr" | sed 's/^/  /'
+  echo "env var names preserved:"; jq -r '.[].name' <<<"$env_json" | sed 's/^/  /'
   exit 0
 fi
 
@@ -62,5 +51,5 @@ body=$(jq -nc --rawfile file "$COMPOSE" --argjson env "$env_json" \
 resp=$(c -X PUT "${A[@]}" -H 'Content-Type: application/json' \
   "$PORTAINER_URL/api/stacks/$sid?endpointId=$eid" --data-binary "$body")
 jq -e '.Id' >/dev/null 2>&1 <<<"$resp" \
-  && echo "deployed '$STACK' (stack $sid) with secrets from SOPS" \
+  && echo "deployed '$STACK' (stack $sid)" \
   || { echo "deploy failed: $resp" >&2; exit 1; }

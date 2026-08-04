@@ -1,3 +1,0 @@
-# Docker integration — intentionally empty (no docker socket mounted). To enable
-# the container widgets, front the socket with a read-only docker-socket-proxy
-# (tecnativa/docker-socket-proxy) and point Homepage at it here.

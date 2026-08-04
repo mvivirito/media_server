@@ -11,31 +11,25 @@ media_server/
 ├── stacks/
 │   ├── media.yml                   # Usenet download/organize pipeline (main stack)
 │   ├── booklore.yml                # ebook library + MariaDB
-│   ├── homepage.yml                # dashboard / start page
 │   └── downloader-vpn.yml.example  # optional gluetun VPN for the downloader
-├── homepage/config/                # Homepage's YAML config (the dashboard)
-├── deploy.sh                       # push a stack to Portainer, secrets injected from SOPS
+├── deploy.sh                       # push a stack to Portainer (env preserved)
 ├── .env.example                    # environment variables (secrets go in Portainer)
 └── README.md
 ```
 
 ## Deploy
 
-`deploy.sh` pushes a stack to Portainer with its **secret** env (the *arr API
-keys) decrypted from a SOPS-encrypted file at deploy time — nothing secret is
-committed here. Compose comes from `stacks/<name>.yml`; non-secret env (domain,
-host) is preserved from the running stack.
+`deploy.sh` pushes a stack to Portainer. Compose comes from `stacks/<name>.yml`;
+the stack's existing Portainer env is preserved untouched, so secrets and
+site-specific values live in Portainer and are never committed here.
 
 ```sh
-PORTAINER_URL=https://<nas>:9443 \
-SECRETS_FILE=/path/to/media.enc.yaml \
-./deploy.sh homepage
-# DRY_RUN=1 ... ./deploy.sh homepage    # show the env diff, change nothing
+PORTAINER_URL=https://<nas>:9443 ./deploy.sh media
+# DRY_RUN=1 ... ./deploy.sh media    # show the stack/env that would be pushed
 ```
 
-SOPS key `sonarr-api-key` maps to stack env `HOMEPAGE_VAR_SONARR_KEY`, etc. See
-the `deploy.sh` header for all env vars (Portainer user/password-file default to
-`nixie` / `/run/secrets/portainer`).
+See the `deploy.sh` header for all env vars (Portainer user/password-file default
+to `nixie` / `/run/secrets/portainer`).
 
 ## Stacks
 
@@ -54,10 +48,6 @@ the `deploy.sh` header for all env vars (Portainer user/password-file default to
 ### `stacks/booklore.yml`
 BookLore (6060) + MariaDB — ebook library.
 
-### `stacks/homepage.yml`
-[Homepage](https://gethomepage.dev) dashboard (3000). Config is the YAML under
-`homepage/config/`; domain/host/keys come from `HOMEPAGE_*` env vars.
-
 ## Deployment (Portainer)
 
 Create the shared network once, then deploy each stack and set its env vars
@@ -66,8 +56,6 @@ Create the shared network once, then deploy each stack and set its env vars
 ```bash
 docker network create media-net
 ```
-
-For Homepage, seed `${CONFIG_BASE}/homepage` from `homepage/config/`.
 
 ## Conventions
 
