@@ -46,6 +46,22 @@ to `nixie` / `/run/secrets/portainer`).
 | Profilarr | 6868 | Quality profiles / custom formats |
 | Cloudflared | — | Optional tunnel (needs `TOKEN`) |
 
+#### Indexer routing
+
+Radarr, Sonarr and Lidarr each hold **one** indexer: NZBHydra2, reached over the
+`media-net` container DNS name (`http://nzbhydra2:5076`, no host IP in any app's
+config). Indexers are added and removed in Hydra alone, which also dedupes
+results across them. Each app keeps its own category set, so Hydra serves movie,
+TV and audio searches from the same pool without them bleeding into each other.
+
+Each app also retains its previous direct indexers, **disabled**, so falling back
+is one toggle per app rather than a re-entry of credentials.
+
+One asymmetry worth knowing: Hydra advertises `audio-search` as unavailable
+because it reports what all of its indexers agree on and not every indexer
+implements `t=music`. Lidarr therefore falls back to a generic query with audio
+categories, which returns the same results. It is not a misconfiguration.
+
 ### `stacks/booklore.yml`
 BookLore (6060) + MariaDB — ebook library.
 
