@@ -9,7 +9,7 @@ environment variables — see `.env.example`.
 ```
 media_server/
 ├── stacks/
-│   ├── media.yml                   # Usenet download/organize pipeline (main stack)
+│   ├── media_server.yml            # Usenet download/organize pipeline (main stack)
 │   ├── booklore.yml                # ebook library + MariaDB
 │   └── downloader-vpn.yml.example  # optional gluetun VPN for the downloader
 ├── deploy.sh                       # push a stack to Portainer (env preserved)
@@ -24,8 +24,8 @@ the stack's existing Portainer env is preserved untouched, so secrets and
 site-specific values live in Portainer and are never committed here.
 
 ```sh
-PORTAINER_URL=https://<nas>:9443 ./deploy.sh media
-# DRY_RUN=1 ... ./deploy.sh media    # show the stack/env that would be pushed
+PORTAINER_URL=https://<nas>:9443 ./deploy.sh media_server
+# DRY_RUN=1 ... ./deploy.sh media_server    # show the stack/env that would be pushed
 ```
 
 See the `deploy.sh` header for all env vars (Portainer user/password-file default
@@ -33,7 +33,7 @@ to `nixie` / `/run/secrets/portainer`).
 
 ## Stacks
 
-### `stacks/media.yml`
+### `stacks/media_server.yml`
 
 | Service | Port | Description |
 |---------|------|-------------|
@@ -41,6 +41,7 @@ to `nixie` / `/run/secrets/portainer`).
 | SABnzbd | 8080 | Usenet download client |
 | Radarr | 7878 | Movie automation |
 | Sonarr | 8989 | TV automation |
+| Lidarr | 8686 | Music automation (album-oriented; see the stack comment) |
 | Bazarr | 6767 | Subtitles |
 | Profilarr | 6868 | Quality profiles / custom formats |
 | Cloudflared | — | Optional tunnel (needs `TOKEN`) |

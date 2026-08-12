@@ -6,8 +6,12 @@
 # Portainer and are never committed to this repo.
 #
 # Usage:
-#   PORTAINER_URL=https://host:9443 ./deploy.sh media
-#   DRY_RUN=1 ... ./deploy.sh media       # show the stack/env that would be pushed
+#   PORTAINER_URL=https://host:9443 ./deploy.sh media_server
+#   DRY_RUN=1 ... ./deploy.sh media_server   # show the stack/env that would be pushed
+#
+# The compose filename IS the Portainer stack name; the script looks the stack up
+# by that one argument. Keep stacks/<name>.yml named after the stack in Portainer,
+# which cannot be renamed in place.
 #
 # Env vars:
 #   PORTAINER_URL      (required)  e.g. https://nas-host:9443
