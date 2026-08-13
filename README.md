@@ -12,6 +12,7 @@ media_server/
 │   ├── media_server.yml            # Usenet download/organize pipeline (main stack)
 │   ├── booklore.yml                # ebook library + MariaDB
 │   └── downloader-vpn.yml.example  # optional gluetun VPN for the downloader
+├── music-transcode/                # portable-player MP3 tier (script + deploy)
 ├── deploy.sh                       # push a stack to Portainer (env preserved)
 ├── .env.example                    # environment variables (secrets go in Portainer)
 └── README.md
