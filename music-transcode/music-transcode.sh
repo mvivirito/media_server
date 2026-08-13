@@ -124,17 +124,41 @@ run_once() {
     done < <(find "$root" -type f 2>/dev/null)
   done
 
-  # Cover art + ReplayGain, once per album that actually changed. rsgain runs in
-  # album mode so relative levels between albums are preserved, which is the
-  # entire point of ReplayGain for whole-album listening.
-  if [ -s "$changed" ]; then
-    while IFS='|' read -r sdir ddir; do
-      albums=$((albums + 1))
-      make_cover "$sdir" "$ddir"
-      mapfile -t mp3s < <(find "$ddir" -maxdepth 1 -type f -iname '*.mp3' 2>/dev/null)
-      [ "${#mp3s[@]}" -gt 0 ] && rsgain custom -a -s i -c p -I 3 "${mp3s[@]}" >/dev/null 2>&1
-    done < <(sort -u "$changed")
-  fi
+  # Cover art + ReplayGain, driven by what the destination is MISSING rather than
+  # by what changed this pass.
+  #
+  # The obvious version — finalise only the albums touched above — silently loses
+  # work: if a pass dies after encoding but before this step, the next pass sees
+  # destinations newer than their sources, skips them, and the album never enters
+  # the changed list again. Its cover and ReplayGain tags would then never be
+  # written at all. Asking the files themselves is self-healing and costs two
+  # cheap checks per album.
+  #
+  # rsgain runs in album mode so relative levels between albums are preserved,
+  # which is the whole point of ReplayGain for album-at-a-time listening.
+  while IFS= read -r ddir; do
+    mapfile -t mp3s < <(find "$ddir" -maxdepth 1 -type f -iname '*.mp3' 2>/dev/null)
+    [ "${#mp3s[@]}" -gt 0 ] || continue
+    local need=0
+    [ -f "$ddir/cover.jpg" ] || need=1
+    if [ "$need" = 0 ]; then
+      ffprobe -v error -show_entries format_tags=replaygain_album_gain \
+              -of default=nw=1:nk=1 "${mp3s[0]}" 2>/dev/null | grep -q . || need=1
+    fi
+    [ "$need" = 1 ] || continue
+    albums=$((albums + 1))
+    # Reverse the dest path back to its source album dir. Sanitising rarely
+    # changes anything (Lidarr already replaces illegal characters), so the
+    # direct candidate almost always hits; the find is the fallback for the
+    # cases where it did rewrite a component.
+    local rel="${ddir#"$DEST"/}" sdir=""
+    for root in "${SRC_DIRS[@]}"; do
+      [ -d "$root/$rel" ] && { sdir="$root/$rel"; break; }
+    done
+    [ -n "$sdir" ] || sdir=$(find "${SRC_DIRS[@]}" -type d -name "$(basename "$ddir")" 2>/dev/null | head -1)
+    [ -f "$ddir/cover.jpg" ] || { [ -n "$sdir" ] && make_cover "$sdir" "$ddir"; }
+    rsgain custom -a -s i -c p -I 3 "${mp3s[@]}" >/dev/null 2>&1
+  done < <(find "$DEST" -mindepth 1 -type d 2>/dev/null)
 
   # Prune: anything in the destination that no source still maps to. cover.jpg
   # is generated here rather than mirrored, so it is never a prune candidate.
