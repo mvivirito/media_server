@@ -13,6 +13,7 @@ media_server/
 │   ├── booklore.yml                # ebook library + MariaDB
 │   └── downloader-vpn.yml.example  # optional gluetun VPN for the downloader
 ├── music-transcode/                # portable-player MP3 tier (script + deploy)
+├── config-snapshot/                # dump running *arr config for recovery
 ├── deploy.sh                       # push a stack to Portainer (env preserved)
 ├── .env.example                    # environment variables (secrets go in Portainer)
 └── README.md
@@ -104,6 +105,44 @@ NAS_HOST=root@<nas> ./music-transcode/deploy-script.sh
 ```
 
 One-shot run for testing, no loop: set `INTERVAL=0`.
+
+### `config-snapshot/`
+
+The compose files describe what **containers** run. They say nothing about how
+the apps are **configured**, and that is where most of the thinking lives:
+quality profiles, naming formats, indexer routing, categories. All of it is
+SQLite inside the config share.
+
+```sh
+NAS_HOST=root@<nas> ./config-snapshot/media-config-snapshot.sh
+```
+
+Dumps Lidarr/Radarr/Sonarr config via their APIs plus NZBHydra2's YAML, writes a
+readable `SUMMARY.txt` alongside the raw JSON, and keeps the last 12 snapshots.
+
+**The output is deliberately not committed.** This repo is public, and although
+the \*arr APIs mask secret fields on read (`"value": "********"`), the dumps
+still carry internal hostnames and addresses. The snapshot is written into the
+config share on the NAS instead, so it rides along with that share's existing
+offsite backup. Only the script is in git.
+
+Restoring a database blob into a version-compatible app is a worse recovery
+story than reading what the settings were and re-entering them — the same
+reasoning that keeps a plain-text album manifest next to the music library.
+
+#### Settings that are not obvious, and why
+
+Reproducing these by hand is the fallback if the config share is ever lost.
+
+| Setting | Value | Why |
+|---|---|---|
+| Lidarr metadata profile | stock **Standard** | Already album-only: Primary=Album, every secondary type including `Mixtape/Street` and `Compilation` unchecked, Official releases only. Building a custom one duplicates a default. |
+| Lidarr quality profile | **Standard**, cutoff Lossless, upgrades on | 16-bit lossless + High Quality Lossy; **FLAC 24bit / ALAC 24bit ungrouped and disallowed**. An item-level `allowed:false` *inside* an allowed group is silently ignored — the group flag wins — so the 24-bit qualities must be pulled out as standalone items or the exclusion does nothing. |
+| Track naming | `{Album Title} ({Release Year})/{track:00} - {Track Title}` | `renameTracks` ships **false**, which preserves scene release names and defeats folder browsing on the player. |
+| Multi-disc naming | `{medium:0}-{track:00} - {Track Title}` | Flat. The stock format uses a `{Medium Format} {medium:00}/` **subfolder**, and the player's file browser sorts by filename, so subfolders scramble boxset order. |
+| Metadata consumer | Kodi/Emby, **images only** | Albums frequently arrive with no art at all — no image files, no embedded picture. This writes `folder.jpg` for the transcode sidecar to resize. Both `.nfo` writers off; the player never reads them. |
+| Indexers | one per app: NZBHydra2 | See *Indexer routing* above. |
+| SABnzbd | `music` category → `Complete/music` | Matches the `movies`/`tv` convention. |
 
 ### `stacks/booklore.yml`
 BookLore (6060) + MariaDB — ebook library.
