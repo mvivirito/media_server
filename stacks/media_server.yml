@@ -100,6 +100,39 @@ services:
     networks:
       - media-net
 
+  # Builds the portable-player copy of the library: MP3 V0 forced to 44.1 kHz,
+  # ReplayGain in album mode, cover art capped small. Polls rather than hooking
+  # Lidarr's import event, so hand-ripped albums dropped into /music-manual get
+  # picked up with no extra wiring.
+  #
+  # This is where hi-res is actually stopped. Lidarr's quality profile matches on
+  # the release NAME, so a mislabelled 24/96 release passes it and only shows its
+  # true format once imported; `-ar 44100` in the script is the guard that holds.
+  #
+  # alpine + apk at start rather than a custom image: there is no registry here,
+  # and the three tools needed (ffmpeg, imagemagick, rsgain) are all packaged.
+  music-transcode:
+    image: alpine:3.20
+    container_name: music-transcode
+    command: sh -c "apk add --no-cache bash ffmpeg imagemagick rsgain >/dev/null && exec bash /opt/music-transcode.sh"
+    environment:
+      - INTERVAL=600
+      - LAME_Q=0
+      - ART_MAX=200
+      - TEXTFILE=/textfile/music-transcode.prom
+    volumes:
+      - /volume1/configs/music-transcode/music-transcode.sh:/opt/music-transcode.sh:ro
+      - /volume3/Warehouse-2/music:/music:ro
+      - /volume3/Warehouse-2/music-manual:/music-manual:ro
+      - /volume3/Warehouse-2/music-ipod:/music-ipod
+      - /volume1/configs/monitoring/textfile:/textfile
+    # host networking: apk needs to fetch at container start, matching the
+    # sibling nas-metrics container's approach
+    network_mode: host
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
   nzbhydra2:
     image: lscr.io/linuxserver/nzbhydra2:latest
     container_name: nzbhydra2

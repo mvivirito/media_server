@@ -45,6 +45,7 @@ to `nixie` / `/run/secrets/portainer`).
 | Bazarr | 6767 | Subtitles |
 | Profilarr | 6868 | Quality profiles / custom formats |
 | Cloudflared | — | Optional tunnel (needs `TOKEN`) |
+| music-transcode | — | Builds the portable-player MP3 tier (see below) |
 
 #### Indexer routing
 
@@ -61,6 +62,47 @@ One asymmetry worth knowing: Hydra advertises `audio-search` as unavailable
 because it reports what all of its indexers agree on and not every indexer
 implements `t=music`. Lidarr therefore falls back to a generic query with audio
 categories, which returns the same results. It is not a misconfiguration.
+
+### `music-transcode/`
+
+Builds the portable-player copy of the music library. The archive keeps whatever
+the indexers delivered; the player is an 80 MHz device with a 44.1 kHz-only DAC,
+a ~5 MB/s USB stack and a fixed-size card, so it gets its own tree:
+
+```
+/music         (archive, ro)  ─┐
+/music-manual  (rips, ro)     ─┴─► /music-ipod   MP3 V0 @ 44.1 kHz
+                                                 ReplayGain (album mode)
+                                                 cover.jpg, long edge ≤ 200 px
+```
+
+Two rules, decided on the **codec ffprobe reports** rather than the file
+extension (`.m4a` is ALAC or AAC and only the codec knows which):
+
+| Source | Action |
+|---|---|
+| lossless (FLAC/ALAC/APE/WavPack/PCM) | encode to MP3 V0, forced to 44.1 kHz |
+| lossy (MP3/AAC/Vorbis/Opus) | copy through — re-encoding is a second generation of loss for nothing |
+
+**This is where hi-res is actually stopped.** Lidarr matches quality on the
+release *name* at search time and only learns the truth from file *content* at
+import, so a release named `Artist-Album.1994` with no hi-res token passes a
+profile that excludes 24-bit and turns out to be 24/96. Roughly 19 % of the
+first real import arrived that way. No name-based rule can prevent it; the
+`-ar 44100` in the script is the guard that holds.
+
+It polls (default 600 s) rather than hooking Lidarr's import event, so hand rips
+dropped into `/music-manual` are picked up with no extra wiring, and the pass is
+idempotent: a destination newer than its source is skipped, and anything no
+source maps to any more is pruned.
+
+Deploy the script (it is bind-mounted, not baked into an image):
+
+```sh
+NAS_HOST=root@<nas> ./music-transcode/deploy-script.sh
+```
+
+One-shot run for testing, no loop: set `INTERVAL=0`.
 
 ### `stacks/booklore.yml`
 BookLore (6060) + MariaDB — ebook library.
